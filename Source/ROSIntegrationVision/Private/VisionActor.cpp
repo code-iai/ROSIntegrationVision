@@ -27,13 +27,12 @@
 #include <condition_variable>
 
 #if PLATFORM_WINDOWS
-#include "immintrin.h"
-#define _USE_MATH_DEFINES
-#include <cmath>
+  #include "immintrin.h"
+  #define _USE_MATH_DEFINES
+  #include <cmath>
 #elif PLATFORM_LINUX
-#include "x86intrin.h"
+  #include "immintrin.h"
 #endif
-
 
 // Private data container so that internal structures are not visible to the outside
 class ROSINTEGRATIONVISION_API AVisionActor::PrivateData
@@ -539,7 +538,7 @@ void AVisionActor::Tick(float DeltaTime)
 	}
 	
 	// Clean up
-	delete(TargetDepthBuf);
+	delete[] TargetDepthBuf;
 }
 
 void AVisionActor::SetFramerate(const float _Framerate)
