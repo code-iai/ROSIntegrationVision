@@ -9,7 +9,8 @@ In order to use this plugin you also need to add the ROSIntegration Core Plugin 
 ## Dependencies of this Plugin
 This plugin depends on F16C Intrinsic Support (https://msdn.microsoft.com/de-de/library/hh977022.aspx), which should be included in newer CPU generations. This ensures the depth data to be converted quickly.
 Important: If you use this Plugin on Linux, you need to enable F16C support manually in Unreal Engine 4 and recompile it.
-To do this, open PATH_TO_UNREAL/Engine/Source/Programs/UnrealBuildTool/Platform/Linux/LinuxToolChain.cs , find the GetCLArguments_Global method and add Result += " -mf16c"; in a suitable place. After that, recompile UE4.
+To do this, open 
+`PATH_TO_UNREAL/Engine/Source/Programs/UnrealBuildTool/Platform/Linux/LinuxToolChain.cs`, find the `GetCLArguments_Global` method and add `Result += " -mf16c";` in a suitable place. After that, recompile UE4.
 
 ## Usage
 After installing this plugin and the core ROSIntegration plugin, you can load your UE4 project.
