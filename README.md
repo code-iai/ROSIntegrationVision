@@ -15,7 +15,7 @@ To do this, open
 ## Usage
 After installing this plugin and the core ROSIntegration plugin, you can load your UE4 project.
 If the plugin is not enabled in the project yet, you can do this in the UE4Editor in Edit -> Plugins.
-When the plugin is loaded correctly, you should be able to add a new Actor called "Vision Actor" to your level, which represents the RGBD camera.
+When the plugin is loaded correctly, you should be able to add a new Actor called "Vision Actor" to your level, which represents the RGBD camera. In some cases (for example on Linux), it might be necessary to call the Generate Project Files action on UE4 in order to fetch the new header files for the plugin before your first compile.
 
 ## Credits
 Credits go to http://unrealcv.org/ and Thiemo Wiedemeyer, who laid out the rendering and data handling basics for this Plugin.
