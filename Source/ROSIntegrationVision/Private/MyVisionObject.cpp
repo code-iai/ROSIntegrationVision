@@ -10,7 +10,7 @@ void AMyVisionActor::BeginPlay() {
 
 	_TFTopic = NewObject<UTopic>(UTopic::StaticClass());
 	UROSIntegrationGameInstance* rosinst = Cast<UROSIntegrationGameInstance>(GetGameInstance());
-	_TFTopic->Init(rosinst->_Ric, TEXT("/visiontest"), TEXT("std_msgs/String"));
+	_TFTopic->Init(rosinst->ROSIntegrationCore, TEXT("/visiontest"), TEXT("std_msgs/String"));
 	TSharedPtr<ROSMessages::std_msgs::String> StringMessage(new ROSMessages::std_msgs::String("VISION for the .... VIN"));
 	_TFTopic->Publish(StringMessage);
 }

@@ -96,6 +96,7 @@ private:
 	void ShowFlagsPostProcess(FEngineShowFlags &ShowFlags) const;
 	void ShowFlagsVertexColor(FEngineShowFlags &ShowFlags) const;
 	void ReadImage(UTextureRenderTarget2D *RenderTarget, TArray<FFloat16Color> &ImageData) const;
+	void ReadImageCompressed(UTextureRenderTarget2D *RenderTarget, TArray<FFloat16Color> &ImageData) const;
 	void ToColorImage(const TArray<FFloat16Color> &ImageData, uint8 *Bytes) const;
 	void ToDepthImage(const TArray<FFloat16Color> &ImageData, uint8 *Bytes) const;
 	void StoreImage(const uint8 *ImageData, const uint32 Size, const char *Name) const;

@@ -26,6 +26,9 @@
 #include <cmath>
 #include <condition_variable>
 
+#include "IImageWrapper.h"
+#include "IImageWrapperModule.h"
+
 #if PLATFORM_WINDOWS
   #include "immintrin.h"
   #define _USE_MATH_DEFINES
@@ -50,15 +53,11 @@ public:
 // Sets default values
 AVisionActor::AVisionActor() : ACameraActor(), Width(960), Height(540), Framerate(1), FieldOfView(90.0), ServerPort(10000), FrameTime(1.0f / Framerate), TimePassed(0), ColorsUsed(0)
 {
+	UE_LOG(LogTemp, Warning, TEXT("VisionActor CTOR"));
 	Priv = new PrivateData();
 
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	// Initializing buffers for reading images from the GPU
-	ImageColor.AddUninitialized(Width * Height);
-	ImageDepth.AddUninitialized(Width * Height);
-	ImageObject.AddUninitialized(Width * Height);
 
 	UE_LOG(LogTemp, Warning, TEXT("Creating color camera."));
 	Color = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("ColorCapture"));
@@ -67,7 +66,6 @@ AVisionActor::AVisionActor() : ACameraActor(), Width(960), Height(540), Framerat
 	Color->TextureTarget = CreateDefaultSubobject<UTextureRenderTarget2D>(TEXT("ColorTarget"));
 	Color->TextureTarget->InitAutoFormat(Width, Height);
 	Color->FOVAngle = FieldOfView;
-	//Color->TextureTarget->TargetGamma = GEngine->GetDisplayGamma();
 
 	UE_LOG(LogTemp, Warning, TEXT("Creating depth camera."))
 		Depth = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("DepthCapture"));
@@ -85,14 +83,6 @@ AVisionActor::AVisionActor() : ACameraActor(), Width(960), Height(540), Framerat
 	Object->TextureTarget->InitAutoFormat(Width, Height);
 	Object->FOVAngle = FieldOfView;
 
-	GetCameraComponent()->FieldOfView = FieldOfView;
-	GetCameraComponent()->AspectRatio = Width / (float)Height;
-
-	// Setting flags for each camera
-	ShowFlagsLit(Color->ShowFlags);
-	ShowFlagsPostProcess(Depth->ShowFlags);
-	ShowFlagsVertexColor(Object->ShowFlags);
-
 	UE_LOG(LogTemp, Warning, TEXT("Loading materials"))
 		ConstructorHelpers::FObjectFinder<UMaterial> MaterialDepthFinder(TEXT("Material'/ROSIntegrationVision/SceneDepth.SceneDepth'"));
 	if (MaterialDepthFinder.Object != nullptr)
@@ -106,9 +96,6 @@ AVisionActor::AVisionActor() : ACameraActor(), Width(960), Height(540), Framerat
 	else
 		UE_LOG(LogTemp, Error, TEXT("Could not load material for depth."));
 
-	// Creating double buffer and setting the pointer of the server object
-	Priv->Buffer = TSharedPtr<PacketBuffer>(new PacketBuffer(Width, Height, FieldOfView));
-	// Priv->Server.Buffer = Priv->Buffer;
 }
 
 AVisionActor::~AVisionActor()
@@ -126,6 +113,35 @@ void AVisionActor::BeginPlay()
 {
 	Super::BeginPlay();
 	UE_LOG(LogTemp, Display, TEXT("Begin play!"));
+	UE_LOG(LogTemp, Warning, TEXT("Creating beginPlay buffers with size %d %d"), Width, Height);
+
+
+	UE_LOG(LogTemp, Warning, TEXT("Creating le buffers with size %d %d"), Width, Height);
+	//Object = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("ObjectCapture"));
+
+	// Initializing buffers for reading images from the GPU
+	ImageColor.AddUninitialized(Width * Height);
+	ImageDepth.AddUninitialized(Width * Height);
+	ImageObject.AddUninitialized(Width * Height);
+
+
+	// Reinit renderer
+	Color->TextureTarget->InitAutoFormat(Width, Height);
+	Depth->TextureTarget->InitAutoFormat(Width, Height);
+	Object->TextureTarget->InitAutoFormat(Width, Height);
+	
+	GetCameraComponent()->FieldOfView = FieldOfView;
+	GetCameraComponent()->AspectRatio = Width / (float)Height;
+
+	// Setting flags for each camera
+	ShowFlagsLit(Color->ShowFlags);
+	ShowFlagsPostProcess(Depth->ShowFlags);
+	ShowFlagsVertexColor(Object->ShowFlags);
+
+	
+	// Creating double buffer and setting the pointer of the server object
+	Priv->Buffer = TSharedPtr<PacketBuffer>(new PacketBuffer(Width, Height, FieldOfView));
+	// Priv->Server.Buffer = Priv->Buffer;
 
 	// Starting server
 	// Priv->Server.Start(ServerPort); 
@@ -155,19 +171,19 @@ void AVisionActor::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ROSIntegrationGameInstance available. Setting up ROS Topics ..."));
 		_TFPublisher = NewObject<UTopic>(UTopic::StaticClass());
-		_TFPublisher->Init(rosinst->_Ric, TEXT("/tf"), TEXT("tf2_msgs/TFMessage"));
+		_TFPublisher->Init(rosinst->ROSIntegrationCore, TEXT("/tf"), TEXT("tf2_msgs/TFMessage"));
 		_TFPublisher->Advertise();
 
 		_CameraInfoPublisher = NewObject<UTopic>(UTopic::StaticClass());
-		_CameraInfoPublisher->Init(rosinst->_Ric, TEXT("/unreal_ros/camera_info"), TEXT("sensor_msgs/CameraInfo"));
+		_CameraInfoPublisher->Init(rosinst->ROSIntegrationCore, TEXT("/unreal_ros/camera_info"), TEXT("sensor_msgs/CameraInfo"));
 		_CameraInfoPublisher->Advertise();
 
 		_ImagePublisher = NewObject<UTopic>(UTopic::StaticClass());
-		_ImagePublisher->Init(rosinst->_Ric, TEXT("/unreal_ros/image_color"), TEXT("sensor_msgs/Image"));
+		_ImagePublisher->Init(rosinst->ROSIntegrationCore, TEXT("/unreal_ros/image_color"), TEXT("sensor_msgs/Image"));
 		_ImagePublisher->Advertise();
 
 		_DepthPublisher = NewObject<UTopic>(UTopic::StaticClass());
-		_DepthPublisher->Init(rosinst->_Ric, TEXT("/unreal_ros/image_depth"), TEXT("sensor_msgs/Image"));
+		_DepthPublisher->Init(rosinst->ROSIntegrationCore, TEXT("/unreal_ros/image_depth"), TEXT("sensor_msgs/Image"));
 		_DepthPublisher->Advertise();
 	}
 	else {
@@ -617,6 +633,20 @@ void AVisionActor::ReadImage(UTextureRenderTarget2D *RenderTarget, TArray<FFloat
 	FTextureRenderTargetResource *RenderTargetResource = RenderTarget->GameThread_GetRenderTargetResource();
 	RenderTargetResource->ReadFloat16Pixels(ImageData);
 }
+
+void AVisionActor::ReadImageCompressed(UTextureRenderTarget2D *RenderTarget, TArray<FFloat16Color> &ImageData) const
+{
+	TArray<FFloat16Color> RawImageData;
+	FTextureRenderTargetResource *RenderTargetResource = RenderTarget->GameThread_GetRenderTargetResource();
+	RenderTargetResource->ReadFloat16Pixels(RawImageData);
+
+	static IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
+	static TSharedPtr<IImageWrapper> ImageWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
+	ImageWrapper->SetRaw(RawImageData.GetData(), RawImageData.GetAllocatedSize(), Width, Height, ERGBFormat::BGRA, 8);
+	const TArray<uint8>& ImgData = ImageWrapper->GetCompressed();
+}
+
+
 
 void AVisionActor::ToColorImage(const TArray<FFloat16Color> &ImageData, uint8 *Bytes) const
 {
