@@ -7,7 +7,7 @@
 #include "UObject/Object.h"
 
 #include "RI/Topic.h"
-#include "std_msgs/String.h"
+#include "std_msgs/StdMsgsString.h"
 #include "MyVisionObject.generated.h"
 
 
