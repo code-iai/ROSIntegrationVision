@@ -324,7 +324,7 @@ void AVisionActor::Tick(float DeltaTime)
 	ImageMessage->width = Width;
 	ImageMessage->encoding = TEXT("bgr8");
 	ImageMessage->step = Width * 3;
-	ImageMessage->data_ptr = &Priv->Buffer->Read[OffsetColor];
+	ImageMessage->data = &Priv->Buffer->Read[OffsetColor];
 	_ImagePublisher->Publish(ImageMessage);
 
 	TSharedPtr<ROSMessages::sensor_msgs::Image> DepthMessage(new ROSMessages::sensor_msgs::Image());
@@ -336,7 +336,7 @@ void AVisionActor::Tick(float DeltaTime)
 	DepthMessage->width = Width;
 	DepthMessage->encoding = TEXT("32FC1");
 	DepthMessage->step = Width * 4;
-	DepthMessage->data_ptr = TargetDepthBuf;
+	DepthMessage->data = TargetDepthBuf;
 	_DepthPublisher->Publish(DepthMessage);
 
 
