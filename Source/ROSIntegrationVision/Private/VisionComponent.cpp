@@ -147,12 +147,15 @@ void UVisionComponent::BeginPlay()
 	UROSIntegrationGameInstance* rosinst = Cast<UROSIntegrationGameInstance>(GetOwner()->GetGameInstance());
 	if (rosinst)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ROSIntegrationGameInstance available. Setting up ROS Topics ..."));
-		_TFPublisher = NewObject<UTopic>(UTopic::StaticClass());
-		_TFPublisher->Init(rosinst->ROSIntegrationCore, 
-                           TEXT("/tf"), 
-                           TEXT("tf2_msgs/TFMessage"));
-		_TFPublisher->Advertise();
+		if (!DisableTFPublishing)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("ROSIntegrationGameInstance available. Setting up ROS Topics ..."));
+			_TFPublisher = NewObject<UTopic>(UTopic::StaticClass());
+			_TFPublisher->Init(rosinst->ROSIntegrationCore, 
+	                           TEXT("/tf"), 
+	                           TEXT("tf2_msgs/TFMessage"));
+			_TFPublisher->Advertise();
+		}
 
 		_CameraInfoPublisher = NewObject<UTopic>(UTopic::StaticClass());
 		_CameraInfoPublisher->Init(rosinst->ROSIntegrationCore, 
@@ -302,46 +305,45 @@ void UVisionComponent::TickComponent(float DeltaTime,
 	double rw = Priv->Buffer->HeaderRead->Rotation.W;
 
 	if (!DisableTFPublishing) {
-		TSharedPtr<ROSMessages::tf2_msgs::TFMessage> TFMessage(new ROSMessages::tf2_msgs::TFMessage());
-		ROSMessages::geometry_msgs::TransformStamped TransformStamped;
-		TransformStamped.header.seq = 0;
-		TransformStamped.header.time = time;
-		TransformStamped.header.frame_id = ParentLink;
-		TransformStamped.child_frame_id = TEXT("/unreal_ros/image_frame");
-		TransformStamped.transform.translation.x = x;
-		TransformStamped.transform.translation.y = y;
-		TransformStamped.transform.translation.z = z;
-		TransformStamped.transform.rotation.x = rx;
-		TransformStamped.transform.rotation.y = ry;
-		TransformStamped.transform.rotation.z = rz;
-		TransformStamped.transform.rotation.w = rw;
+		TSharedPtr<ROSMessages::tf2_msgs::TFMessage> TFImageFrame(new ROSMessages::tf2_msgs::TFMessage());
+		ROSMessages::geometry_msgs::TransformStamped TransformImage;
+		TransformImage.header.seq = 0;
+		TransformImage.header.time = time;
+		TransformImage.header.frame_id = ParentLink;
+		TransformImage.child_frame_id = TEXT("/unreal_ros/image_frame");
+		TransformImage.transform.translation.x = x;
+		TransformImage.transform.translation.y = y;
+		TransformImage.transform.translation.z = z;
+		TransformImage.transform.rotation.x = rx;
+		TransformImage.transform.rotation.y = ry;
+		TransformImage.transform.rotation.z = rz;
+		TransformImage.transform.rotation.w = rw;
 
-		TFMessage->transforms.Add(TransformStamped);
+		TFImageFrame->transforms.Add(TransformImage);
 
-		_TFPublisher->Publish(TFMessage);
-	}
-	// Publish optical frame
-	FRotator CameraLinkRotator(0.0, -90.0, 90.0);
-	FQuat CameraLinkQuaternion(CameraLinkRotator);
+		_TFPublisher->Publish(TFImageFrame);
+		
+		// Publish optical frame
+		FRotator CameraLinkRotator(0.0, -90.0, 90.0);
+		FQuat CameraLinkQuaternion(CameraLinkRotator);
 
-	if (!DisableTFPublishing) {
-		TSharedPtr<ROSMessages::tf2_msgs::TFMessage> TFMessage(new ROSMessages::tf2_msgs::TFMessage());
-		ROSMessages::geometry_msgs::TransformStamped TransformStamped;
-		TransformStamped.header.seq = 0;
-		TransformStamped.header.time = time;
-		TransformStamped.header.frame_id = TEXT("/unreal_ros/image_frame");
-		TransformStamped.child_frame_id = TEXT("/unreal_ros/image_optical_frame");
-		TransformStamped.transform.translation.x = 0;
-		TransformStamped.transform.translation.y = 0;
-		TransformStamped.transform.translation.z = 0;
-		TransformStamped.transform.rotation.x = CameraLinkQuaternion.X;
-		TransformStamped.transform.rotation.y = CameraLinkQuaternion.Y;
-		TransformStamped.transform.rotation.z = CameraLinkQuaternion.Z;
-		TransformStamped.transform.rotation.w = CameraLinkQuaternion.W;
+		TSharedPtr<ROSMessages::tf2_msgs::TFMessage> TFOpticalFrame(new ROSMessages::tf2_msgs::TFMessage());
+		ROSMessages::geometry_msgs::TransformStamped TransformOptical;
+		TransformOptical.header.seq = 0;
+		TransformOptical.header.time = time;
+		TransformOptical.header.frame_id = TEXT("/unreal_ros/image_frame");
+		TransformOptical.child_frame_id = TEXT("/unreal_ros/image_optical_frame");
+		TransformOptical.transform.translation.x = 0;
+		TransformOptical.transform.translation.y = 0;
+		TransformOptical.transform.translation.z = 0;
+		TransformOptical.transform.rotation.x = CameraLinkQuaternion.X;
+		TransformOptical.transform.rotation.y = CameraLinkQuaternion.Y;
+		TransformOptical.transform.rotation.z = CameraLinkQuaternion.Z;
+		TransformOptical.transform.rotation.w = CameraLinkQuaternion.W;
 
-		TFMessage->transforms.Add(TransformStamped);
+		TFOpticalFrame->transforms.Add(TransformOptical);
 
-		_TFPublisher->Publish(TFMessage);
+		_TFPublisher->Publish(TFOpticalFrame);
 	}
 
 	// Construct and publish CameraInfo
