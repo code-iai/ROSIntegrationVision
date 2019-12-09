@@ -301,7 +301,7 @@ void UVisionComponent::TickComponent(float DeltaTime,
 	double rz = Priv->Buffer->HeaderRead->Rotation.Z;
 	double rw = Priv->Buffer->HeaderRead->Rotation.W;
 
-	if (!FixedCam) {
+	if (!DisableTFPublishing) {
 		TSharedPtr<ROSMessages::tf2_msgs::TFMessage> TFMessage(new ROSMessages::tf2_msgs::TFMessage());
 		ROSMessages::geometry_msgs::TransformStamped TransformStamped;
 		TransformStamped.header.seq = 0;
@@ -324,7 +324,7 @@ void UVisionComponent::TickComponent(float DeltaTime,
 	FRotator CameraLinkRotator(0.0, -90.0, 90.0);
 	FQuat CameraLinkQuaternion(CameraLinkRotator);
 
-	if (!FixedCam) {
+	if (!DisableTFPublishing) {
 		TSharedPtr<ROSMessages::tf2_msgs::TFMessage> TFMessage(new ROSMessages::tf2_msgs::TFMessage());
 		ROSMessages::geometry_msgs::TransformStamped TransformStamped;
 		TransformStamped.header.seq = 0;

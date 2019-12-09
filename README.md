@@ -32,13 +32,12 @@ UVisionComponent * vision = CreateDefaultSubobject<UVisionComponent>(TEXT("Visio
 vision->SetupAttachment(RootComponent);
 ```
 
-Fixed Camera Mode:
+Disable TF Publishing:
 
-This disables tf publishing from within Unreal, and instead requires the links 
-to be specified via URDF.  
-
+This is useful for fixed cameras with links / joints defined via URDF.
+ 
 ```c++
-vision->FixedCam = true;
+vision->DisableTFPublishing = true;
 ```
 
 Camera Parent Link Naming:

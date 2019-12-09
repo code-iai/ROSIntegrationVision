@@ -24,7 +24,7 @@ public:
   UPROPERTY(EditAnywhere, Category = "Vision Component")
     FString ParentLink; // Defines the link that binds to the image frame.
   UPROPERTY(EditAnywhere, Category = "Vision Component")
-    bool FixedCam;  // When False, TF will not be published for the camera links.
+    bool DisableTFPublishing; 
   UPROPERTY(EditAnywhere, Category = "Vision Component")
     uint32 Width;
   UPROPERTY(EditAnywhere, Category = "Vision Component")
