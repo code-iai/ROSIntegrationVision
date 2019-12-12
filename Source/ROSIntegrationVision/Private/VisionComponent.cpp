@@ -6,6 +6,7 @@
 #include <fstream>
 #include <mutex>
 #include <thread>
+#include "immintrin.h"
 
 #include "ROSTime.h"
 #include "sensor_msgs/CameraInfo.h"
@@ -18,10 +19,7 @@
 #include "UObject/ConstructorHelpers.h"
 
 #if PLATFORM_WINDOWS
-  #include "immintrin.h"
   #define _USE_MATH_DEFINES
-#elif PLATFORM_LINUX
-  #include "immintrin.h"
 #endif
 
 // Private data container so that internal structures are not visible to the outside
