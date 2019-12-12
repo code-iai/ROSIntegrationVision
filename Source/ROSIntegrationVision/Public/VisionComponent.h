@@ -3,6 +3,7 @@
 
 #include "Camera/CameraComponent.h"
 #include "Components/SceneCaptureComponent2D.h"
+#include "Engine/TextureRenderTarget2D.h"
 
 #include "RI/Topic.h"
 
