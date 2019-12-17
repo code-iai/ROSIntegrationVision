@@ -1,7 +1,26 @@
 // Author Tim Fronsee <tfronsee21@gmail.com>
 #include "VisionComponent.h"
 
+#include <cmath>
+#include <condition_variable>
+#include <fstream>
+#include <mutex>
+#include <thread>
+#include "immintrin.h"
+
+#include "ROSTime.h"
+#include "sensor_msgs/CameraInfo.h"
+#include "sensor_msgs/Image.h"
+#include "tf2_msgs/TFMessage.h"
+
+#include "EngineUtils.h"
+#include "IImageWrapper.h"
+#include "IImageWrapperModule.h"
 #include "UObject/ConstructorHelpers.h"
+
+#if PLATFORM_WINDOWS
+  #define _USE_MATH_DEFINES
+#endif
 
 // Private data container so that internal structures are not visible to the outside
 class ROSINTEGRATIONVISION_API UVisionComponent::PrivateData
