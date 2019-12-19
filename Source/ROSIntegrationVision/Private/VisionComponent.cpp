@@ -499,6 +499,8 @@ void UVisionComponent::ShowFlagsLit(FEngineShowFlags &ShowFlags) const
 void UVisionComponent::ShowFlagsPostProcess(FEngineShowFlags &ShowFlags) const
 {
 	ShowFlagsBasicSetting(ShowFlags);
+	ShowFlags.SetBSP(true);
+	ShowFlags.SetBSPTriangles(true);
 	ShowFlags.SetPostProcessing(true);
 	ShowFlags.SetPostProcessMaterial(true);
 
