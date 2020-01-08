@@ -166,15 +166,11 @@ void UVisionComponent::BeginPlay()
 	UROSIntegrationGameInstance* rosinst = Cast<UROSIntegrationGameInstance>(GetOwner()->GetGameInstance());
 	if (rosinst)
 	{
-		if (!DisableTFPublishing)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("ROSIntegrationGameInstance available. Setting up ROS Topics ..."));
-			_TFPublisher = NewObject<UTopic>(UTopic::StaticClass());
-			_TFPublisher->Init(rosinst->ROSIntegrationCore, 
-	                           TEXT("/tf"), 
-	                           TEXT("tf2_msgs/TFMessage"));
-			_TFPublisher->Advertise();
-		}
+		_TFPublisher = NewObject<UTopic>(UTopic::StaticClass());
+		_TFPublisher->Init(rosinst->ROSIntegrationCore, 
+                           TEXT("/tf"), 
+                           TEXT("tf2_msgs/TFMessage"));
+    _TFPublisher->Advertise();
 
 		_CameraInfoPublisher = NewObject<UTopic>(UTopic::StaticClass());
 		_CameraInfoPublisher->Init(rosinst->ROSIntegrationCore, 
