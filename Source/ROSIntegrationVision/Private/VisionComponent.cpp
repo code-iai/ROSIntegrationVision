@@ -52,11 +52,9 @@ ColorsUsed(0)
     auto owner = GetOwner();
     if (owner)
     {
-        auto RootComponent = owner->GetRootComponent();
-        
         UE_LOG(LogTemp, Warning, TEXT("Creating color camera."));
         Color = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("ColorCapture"));
-        Color->SetupAttachment(RootComponent);
+        Color->SetupAttachment(this);
         Color->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
         Color->TextureTarget = CreateDefaultSubobject<UTextureRenderTarget2D>(TEXT("ColorTarget"));
         Color->TextureTarget->InitAutoFormat(Width, Height);
@@ -64,7 +62,7 @@ ColorsUsed(0)
 
         UE_LOG(LogTemp, Warning, TEXT("Creating depth camera."))
             Depth = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("DepthCapture"));
-        Depth->SetupAttachment(RootComponent);
+        Depth->SetupAttachment(this);
         Depth->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
         Depth->TextureTarget = CreateDefaultSubobject<UTextureRenderTarget2D>(TEXT("DepthTarget"));
         Depth->TextureTarget->InitAutoFormat(Width, Height);
