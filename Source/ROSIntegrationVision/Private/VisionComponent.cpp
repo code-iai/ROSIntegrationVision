@@ -170,7 +170,7 @@ void UVisionComponent::BeginPlay()
 		_TFPublisher->Init(rosinst->ROSIntegrationCore, 
                            TEXT("/tf"), 
                            TEXT("tf2_msgs/TFMessage"));
-    _TFPublisher->Advertise();
+ 		_TFPublisher->Advertise();
 
 		_CameraInfoPublisher = NewObject<UTopic>(UTopic::StaticClass());
 		_CameraInfoPublisher->Init(rosinst->ROSIntegrationCore, 
