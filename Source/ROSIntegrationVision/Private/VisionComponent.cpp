@@ -39,6 +39,7 @@ UVisionComponent::UVisionComponent() :
 Width(960), 
 Height(540), 
 Framerate(1), 
+UseEngineFramerate(false),
 ServerPort(10000), 
 FrameTime(1.0f / Framerate), 
 TimePassed(0), 
@@ -213,7 +214,7 @@ void UVisionComponent::TickComponent(float DeltaTime,
 
 	// Check for framerate
 	TimePassed += DeltaTime;
-	if (TimePassed < FrameTime)
+	if (!UseEngineFramerate && TimePassed < FrameTime)
 	{
 		return;
 	}

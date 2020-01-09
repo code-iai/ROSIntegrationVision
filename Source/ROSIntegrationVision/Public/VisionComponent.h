@@ -33,6 +33,8 @@ public:
   UPROPERTY(EditAnywhere, Category = "Vision Component")
     float Framerate;
   UPROPERTY(EditAnywhere, Category = "Vision Component")
+    bool UseEngineFramerate; 
+  UPROPERTY(EditAnywhere, Category = "Vision Component")
     int32 ServerPort;
   
 protected:
