@@ -319,10 +319,9 @@ void UVisionComponent::TickComponent(float DeltaTime,
 
 	if (!DisableTFPublishing) {
     // Start advertising TF only if it has yet to advertise.
-    if (!TFAdvertising)
+    if (!_TFPublisher->IsAdvertising())
     {
       _TFPublisher->Advertise();
-      TFAdvertising = true;
     }
 		TSharedPtr<ROSMessages::tf2_msgs::TFMessage> TFImageFrame(new ROSMessages::tf2_msgs::TFMessage());
 		ROSMessages::geometry_msgs::TransformStamped TransformImage;
@@ -365,9 +364,8 @@ void UVisionComponent::TickComponent(float DeltaTime,
 		_TFPublisher->Publish(TFOpticalFrame);
 	}
   // Stop advertising if TF has been disabled and is already advertising.
-  else if (TFAdvertising) {
+  else if (_TFPublisher->IsAdvertising()) {
     _TFPublisher->Unadvertise();
-    TFAdvertising = false;
   }
 
 	// Construct and publish CameraInfo
