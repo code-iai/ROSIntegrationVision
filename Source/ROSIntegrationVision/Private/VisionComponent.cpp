@@ -71,7 +71,7 @@ ColorsUsed(0)
 
         UE_LOG(LogTemp, Warning, TEXT("Creating object camera."))
             Object = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("ObjectCapture"));
-        Object->SetupAttachment(RootComponent);
+        Object->SetupAttachment(this);
         Object->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
         Object->TextureTarget = CreateDefaultSubobject<UTextureRenderTarget2D>(TEXT("ObjectTarget"));
         Object->TextureTarget->InitAutoFormat(Width, Height);
@@ -169,7 +169,6 @@ void UVisionComponent::BeginPlay()
 		_TFPublisher->Init(rosinst->ROSIntegrationCore, 
                            TEXT("/tf"), 
                            TEXT("tf2_msgs/TFMessage"));
- 		_TFPublisher->Advertise();
 
 		_CameraInfoPublisher = NewObject<UTopic>(UTopic::StaticClass());
 		_CameraInfoPublisher->Init(rosinst->ROSIntegrationCore, 
@@ -319,6 +318,12 @@ void UVisionComponent::TickComponent(float DeltaTime,
 	double rw = Priv->Buffer->HeaderRead->Rotation.W;
 
 	if (!DisableTFPublishing) {
+    // Start advertising TF only if it has yet to advertise.
+    if (!TFAdvertising)
+    {
+      _TFPublisher->Advertise();
+      TFAdvertising = true;
+    }
 		TSharedPtr<ROSMessages::tf2_msgs::TFMessage> TFImageFrame(new ROSMessages::tf2_msgs::TFMessage());
 		ROSMessages::geometry_msgs::TransformStamped TransformImage;
 		TransformImage.header.seq = 0;
@@ -359,6 +364,11 @@ void UVisionComponent::TickComponent(float DeltaTime,
 
 		_TFPublisher->Publish(TFOpticalFrame);
 	}
+  // Stop advertising if TF has been disabled and is already advertising.
+  else if (TFAdvertising) {
+    _TFPublisher->Unadvertise();
+    TFAdvertising = false;
+  }
 
 	// Construct and publish CameraInfo
 
@@ -438,7 +448,6 @@ void UVisionComponent::TickComponent(float DeltaTime,
 		CamInfo->roi.do_rectify = false;
 
 		_CameraInfoPublisher->Publish(CamInfo);
-
 	}
 
 	// Clean up

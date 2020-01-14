@@ -77,7 +77,7 @@ private:
   TArray<FColor> ObjectColors;
   TMap<FString, uint32> ObjectToColor;
   uint32 ColorsUsed;
-  bool Running, Paused;
+  bool Running, Paused, TFAdvertising;
   
   void ShowFlagsBasicSetting(FEngineShowFlags &ShowFlags) const;
   void ShowFlagsLit(FEngineShowFlags &ShowFlags) const;
