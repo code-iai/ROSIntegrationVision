@@ -36,6 +36,14 @@ public:
     bool UseEngineFramerate; 
   UPROPERTY(EditAnywhere, Category = "Vision Component")
     int32 ServerPort;
+    
+  // The cameras for color, depth and objects;
+  UPROPERTY(EditAnywhere, Category = "Vision Component")
+	  USceneCaptureComponent2D * Color;
+  UPROPERTY(EditAnywhere, Category = "Vision Component")
+  	USceneCaptureComponent2D * Depth;
+  UPROPERTY(EditAnywhere, Category = "Vision Component")
+    USceneCaptureComponent2D * Object;
   
 protected:
   
@@ -64,11 +72,6 @@ private:
 	// Private data container
 	class PrivateData;
 	PrivateData *Priv;
-
-	// The cameras for color, depth and objects;
-	USceneCaptureComponent2D *Color;
-	USceneCaptureComponent2D *Depth;
-	USceneCaptureComponent2D *Object;
 
 	UMaterialInstanceDynamic *MaterialDepthInstance;
   

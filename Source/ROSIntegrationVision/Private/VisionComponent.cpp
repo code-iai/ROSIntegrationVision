@@ -53,7 +53,6 @@ ColorsUsed(0)
     auto owner = GetOwner();
     if (owner)
     {
-        UE_LOG(LogTemp, Warning, TEXT("Creating color camera."));
         Color = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("ColorCapture"));
         Color->SetupAttachment(this);
         Color->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
@@ -61,24 +60,21 @@ ColorsUsed(0)
         Color->TextureTarget->InitAutoFormat(Width, Height);
         Color->FOVAngle = FieldOfView;
 
-        UE_LOG(LogTemp, Warning, TEXT("Creating depth camera."))
-            Depth = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("DepthCapture"));
+        Depth = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("DepthCapture"));
         Depth->SetupAttachment(this);
         Depth->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
         Depth->TextureTarget = CreateDefaultSubobject<UTextureRenderTarget2D>(TEXT("DepthTarget"));
         Depth->TextureTarget->InitAutoFormat(Width, Height);
         Depth->FOVAngle = FieldOfView;
 
-        UE_LOG(LogTemp, Warning, TEXT("Creating object camera."))
-            Object = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("ObjectCapture"));
+        Object = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("ObjectCapture"));
         Object->SetupAttachment(this);
         Object->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
         Object->TextureTarget = CreateDefaultSubobject<UTextureRenderTarget2D>(TEXT("ObjectTarget"));
         Object->TextureTarget->InitAutoFormat(Width, Height);
         Object->FOVAngle = FieldOfView;
 
-        UE_LOG(LogTemp, Warning, TEXT("Loading materials"))
-            ConstructorHelpers::FObjectFinder<UMaterial> MaterialDepthFinder(TEXT("Material'/ROSIntegrationVision/SceneDepth.SceneDepth'"));
+        ConstructorHelpers::FObjectFinder<UMaterial> MaterialDepthFinder(TEXT("Material'/ROSIntegrationVision/SceneDepth.SceneDepth'"));
         if (MaterialDepthFinder.Object != nullptr)
         {
             MaterialDepthInstance = UMaterialInstanceDynamic::Create(MaterialDepthFinder.Object, Depth);
