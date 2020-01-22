@@ -44,12 +44,20 @@ public:
   	USceneCaptureComponent2D * Depth;
   UPROPERTY(EditAnywhere, Category = "Vision Component")
     USceneCaptureComponent2D * Object;
-  
   UPROPERTY(BlueprintReadWrite, Category = "Vision Component")
     FString ImageFrame = TEXT("/unreal_ros/image_frame");
   UPROPERTY(BlueprintReadWrite, Category = "Vision Component")
     FString ImageOpticalFrame = TEXT("/unreal_ros/image_optical_frame");
     
+	UPROPERTY(EditAnywhere, Category = "Vision Component")
+		UTopic * CameraInfoPublisher;
+	UPROPERTY(EditAnywhere, Category = "Vision Component")
+		UTopic * DepthPublisher;
+	UPROPERTY(EditAnywhere, Category = "Vision Component")
+		UTopic * ImagePublisher;
+	UPROPERTY(EditAnywhere, Category = "Vision Component")
+		UTopic * TFPublisher;
+
 protected:
   
   virtual void InitializeComponent() override;
@@ -62,17 +70,6 @@ protected:
   float FrameTime, TimePassed;
 
 private:
-	UPROPERTY()
-		UTopic *_CameraInfoPublisher;
-
-	UPROPERTY()
-		UTopic *_TFPublisher;
-
-	UPROPERTY()
-		UTopic *_ImagePublisher;
-
-	UPROPERTY()
-		UTopic *_DepthPublisher;
     
 	// Private data container
 	class PrivateData;
