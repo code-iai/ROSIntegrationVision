@@ -279,7 +279,7 @@ void UVisionComponent::TickComponent(float DeltaTime,
 	convertDepth((uint16_t *)DepthPtr, (__m128*)TargetDepthBuf);
 	// convertDepth((uint16_t *)packet.pDepth, (__m128*)&msgDepth->data[0]);
 
-	UE_LOG(LogTemp, Display, TEXT("Buffer Offsets: %d %d %d"), OffsetColor, OffsetDepth, OffsetObject);
+	UE_LOG(LogTemp, Verbose, TEXT("Buffer Offsets: %d %d %d"), OffsetColor, OffsetDepth, OffsetObject);
 
 	FROSTime time = FROSTime::Now();
 
