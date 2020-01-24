@@ -74,19 +74,6 @@ ColorsUsed(0)
         Object->TextureTarget = CreateDefaultSubobject<UTextureRenderTarget2D>(TEXT("ObjectTarget"));
         Object->TextureTarget->InitAutoFormat(Width, Height);
         Object->FOVAngle = FieldOfView;
-
-        ConstructorHelpers::FObjectFinder<UMaterial> MaterialDepthFinder(TEXT("Material'/ROSIntegrationVision/SceneDepth.SceneDepth'"));
-        if (MaterialDepthFinder.Object != nullptr)
-        {
-            MaterialDepthInstance = UMaterialInstanceDynamic::Create(MaterialDepthFinder.Object, Depth);
-            if (MaterialDepthInstance != nullptr)
-            {
-                Depth->PostProcessSettings.AddBlendable(MaterialDepthInstance, 1);
-            }
-        }
-        else {
-            UE_LOG(LogTemp, Error, TEXT("Could not load material for depth."));
-        }
     }
     else {
         UE_LOG(LogTemp, Warning, TEXT("No owner!"));
