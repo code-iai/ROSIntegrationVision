@@ -42,8 +42,6 @@ public class ROSIntegrationVision : ModuleRules
         "CoreUObject",
         "Engine",
         "RenderCore",
-        "Slate",
-        "SlateCore",
         "Sockets",
         "Networking",
         "ROSIntegration"
