@@ -41,7 +41,7 @@ public:
 
   virtual inline ~ScopeTime()
   {
-    UE_LOG(LogTemp,Display, TEXT("%s: %f ms."), *Message, GetTimePassed());
+    UE_LOG(LogTemp,Verbose, TEXT("%s: %f ms."), *Message, GetTimePassed());
   }
 };
 
