@@ -45,6 +45,11 @@ public:
   UPROPERTY(EditAnywhere, Category = "Vision Component")
     USceneCaptureComponent2D * Object;
   
+  UPROPERTY(BlueprintReadWrite, Category = "Vision Component")
+    FString ImageFrame = TEXT("/unreal_ros/image_frame");
+  UPROPERTY(BlueprintReadWrite, Category = "Vision Component")
+    FString ImageOpticalFrame = TEXT("/unreal_ros/image_optical_frame");
+    
 protected:
   
   virtual void InitializeComponent() override;

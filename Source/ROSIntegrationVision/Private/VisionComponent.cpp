@@ -270,7 +270,7 @@ void UVisionComponent::TickComponent(float DeltaTime,
 
 	ImageMessage->header.seq = 0;
 	ImageMessage->header.time = time;
-	ImageMessage->header.frame_id = TEXT("/unreal_ros/image_optical_frame");
+	ImageMessage->header.frame_id = ImageOpticalFrame;
 	ImageMessage->height = Height;
 	ImageMessage->width = Width;
 	ImageMessage->encoding = TEXT("bgr8");
@@ -282,7 +282,7 @@ void UVisionComponent::TickComponent(float DeltaTime,
 
 	DepthMessage->header.seq = 0;
 	DepthMessage->header.time = time;
-	DepthMessage->header.frame_id = TEXT("/unreal_ros/image_optical_frame");
+	DepthMessage->header.frame_id = ImageOpticalFrame;
 	DepthMessage->height = Height;
 	DepthMessage->width = Width;
 	DepthMessage->encoding = TEXT("32FC1");
@@ -311,7 +311,7 @@ void UVisionComponent::TickComponent(float DeltaTime,
 		TransformImage.header.seq = 0;
 		TransformImage.header.time = time;
 		TransformImage.header.frame_id = ParentLink;
-		TransformImage.child_frame_id = TEXT("/unreal_ros/image_frame");
+		TransformImage.child_frame_id = ImageFrame;
 		TransformImage.transform.translation.x = x;
 		TransformImage.transform.translation.y = y;
 		TransformImage.transform.translation.z = z;
@@ -332,8 +332,8 @@ void UVisionComponent::TickComponent(float DeltaTime,
 		ROSMessages::geometry_msgs::TransformStamped TransformOptical;
 		TransformOptical.header.seq = 0;
 		TransformOptical.header.time = time;
-		TransformOptical.header.frame_id = TEXT("/unreal_ros/image_frame");
-		TransformOptical.child_frame_id = TEXT("/unreal_ros/image_optical_frame");
+		TransformOptical.header.frame_id = ImageFrame;
+		TransformOptical.child_frame_id = ImageOpticalFrame;
 		TransformOptical.transform.translation.x = 0;
 		TransformOptical.transform.translation.y = 0;
 		TransformOptical.transform.translation.z = 0;
