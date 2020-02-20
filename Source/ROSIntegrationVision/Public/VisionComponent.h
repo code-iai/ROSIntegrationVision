@@ -44,19 +44,20 @@ public:
   	USceneCaptureComponent2D * Depth;
   UPROPERTY(EditAnywhere, Category = "Vision Component")
     USceneCaptureComponent2D * Object;
+
   UPROPERTY(BlueprintReadWrite, Category = "Vision Component")
     FString ImageFrame = TEXT("/unreal_ros/image_frame");
   UPROPERTY(BlueprintReadWrite, Category = "Vision Component")
     FString ImageOpticalFrame = TEXT("/unreal_ros/image_optical_frame");
     
-	UPROPERTY(EditAnywhere, Category = "Vision Component")
-		UTopic * CameraInfoPublisher;
-	UPROPERTY(EditAnywhere, Category = "Vision Component")
-		UTopic * DepthPublisher;
-	UPROPERTY(EditAnywhere, Category = "Vision Component")
-		UTopic * ImagePublisher;
-	UPROPERTY(EditAnywhere, Category = "Vision Component")
-		UTopic * TFPublisher;
+  UPROPERTY(EditAnywhere, Category = "Vision Component")
+    UTopic * CameraInfoPublisher;
+  UPROPERTY(EditAnywhere, Category = "Vision Component")
+    UTopic * DepthPublisher;
+  UPROPERTY(EditAnywhere, Category = "Vision Component")
+   UTopic * ImagePublisher;
+  UPROPERTY(EditAnywhere, Category = "Vision Component")
+   UTopic * TFPublisher;
 
 protected:
   
