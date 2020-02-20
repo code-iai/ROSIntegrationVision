@@ -44,7 +44,7 @@ public:
   	USceneCaptureComponent2D * Depth;
   UPROPERTY(EditAnywhere, Category = "Vision Component")
     USceneCaptureComponent2D * Object;
-
+  
   UPROPERTY(BlueprintReadWrite, Category = "Vision Component")
     FString ImageFrame = TEXT("/unreal_ros/image_frame");
   UPROPERTY(BlueprintReadWrite, Category = "Vision Component")
