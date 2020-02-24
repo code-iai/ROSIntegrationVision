@@ -109,7 +109,7 @@ void UVisionComponent::InitializeComponent()
 
 void UVisionComponent::BeginPlay()
 {
-    Super::BeginPlay();
+  Super::BeginPlay();
     // Initializing buffers for reading images from the GPU
 	ImageColor.AddUninitialized(Width * Height);
 	ImageDepth.AddUninitialized(Width * Height);
@@ -148,28 +148,28 @@ void UVisionComponent::BeginPlay()
 	UROSIntegrationGameInstance* rosinst = Cast<UROSIntegrationGameInstance>(GetOwner()->GetGameInstance());
 	if (rosinst)
 	{
-		_TFPublisher = NewObject<UTopic>(UTopic::StaticClass());
-		_TFPublisher->Init(rosinst->ROSIntegrationCore, 
+		TFPublisher = NewObject<UTopic>(UTopic::StaticClass());
+		TFPublisher->Init(rosinst->ROSIntegrationCore, 
                            TEXT("/tf"), 
                            TEXT("tf2_msgs/TFMessage"));
 
-		_CameraInfoPublisher = NewObject<UTopic>(UTopic::StaticClass());
-		_CameraInfoPublisher->Init(rosinst->ROSIntegrationCore, 
+		CameraInfoPublisher = NewObject<UTopic>(UTopic::StaticClass());
+		CameraInfoPublisher->Init(rosinst->ROSIntegrationCore, 
                                    TEXT("/unreal_ros/camera_info"), 
                                    TEXT("sensor_msgs/CameraInfo"));
-		_CameraInfoPublisher->Advertise();
+		CameraInfoPublisher->Advertise();
 
-		_ImagePublisher = NewObject<UTopic>(UTopic::StaticClass());
-		_ImagePublisher->Init(rosinst->ROSIntegrationCore, 
+		ImagePublisher = NewObject<UTopic>(UTopic::StaticClass());
+		ImagePublisher->Init(rosinst->ROSIntegrationCore, 
                               TEXT("/unreal_ros/image_color"), 
                               TEXT("sensor_msgs/Image"));
-		_ImagePublisher->Advertise();
+		ImagePublisher->Advertise();
 
-		_DepthPublisher = NewObject<UTopic>(UTopic::StaticClass());
-		_DepthPublisher->Init(rosinst->ROSIntegrationCore, 
+		DepthPublisher = NewObject<UTopic>(UTopic::StaticClass());
+		DepthPublisher->Init(rosinst->ROSIntegrationCore, 
                               TEXT("/unreal_ros/image_depth"), 
                               TEXT("sensor_msgs/Image"));
-		_DepthPublisher->Advertise();
+		DepthPublisher->Advertise();
 	}
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("UnrealROSInstance not existing."));
@@ -276,7 +276,7 @@ void UVisionComponent::TickComponent(float DeltaTime,
 	ImageMessage->encoding = TEXT("bgr8");
 	ImageMessage->step = Width * 3;
 	ImageMessage->data = &Priv->Buffer->Read[OffsetColor];
-	_ImagePublisher->Publish(ImageMessage);
+	ImagePublisher->Publish(ImageMessage);
 
 	TSharedPtr<ROSMessages::sensor_msgs::Image> DepthMessage(new ROSMessages::sensor_msgs::Image());
 
@@ -288,7 +288,7 @@ void UVisionComponent::TickComponent(float DeltaTime,
 	DepthMessage->encoding = TEXT("32FC1");
 	DepthMessage->step = Width * 4;
 	DepthMessage->data = TargetDepthBuf;
-	_DepthPublisher->Publish(DepthMessage);
+	DepthPublisher->Publish(DepthMessage);
 
 	Priv->Buffer->DoneReading();
 
@@ -302,9 +302,9 @@ void UVisionComponent::TickComponent(float DeltaTime,
 
 	if (!DisableTFPublishing) {
     // Start advertising TF only if it has yet to advertise.
-    if (!_TFPublisher->IsAdvertising())
+    if (!TFPublisher->IsAdvertising())
     {
-      _TFPublisher->Advertise();
+      TFPublisher->Advertise();
     }
 		TSharedPtr<ROSMessages::tf2_msgs::TFMessage> TFImageFrame(new ROSMessages::tf2_msgs::TFMessage());
 		ROSMessages::geometry_msgs::TransformStamped TransformImage;
@@ -322,7 +322,7 @@ void UVisionComponent::TickComponent(float DeltaTime,
 
 		TFImageFrame->transforms.Add(TransformImage);
 
-		_TFPublisher->Publish(TFImageFrame);
+		TFPublisher->Publish(TFImageFrame);
 		
 		// Publish optical frame
 		FRotator CameraLinkRotator(0.0, -90.0, 90.0);
@@ -344,11 +344,11 @@ void UVisionComponent::TickComponent(float DeltaTime,
 
 		TFOpticalFrame->transforms.Add(TransformOptical);
 
-		_TFPublisher->Publish(TFOpticalFrame);
+		TFPublisher->Publish(TFOpticalFrame);
 	}
   // Stop advertising if TF has been disabled and is already advertising.
-  else if (_TFPublisher->IsAdvertising()) {
-    _TFPublisher->Unadvertise();
+  else if (TFPublisher->IsAdvertising()) {
+    TFPublisher->Unadvertise();
   }
 
 	// Construct and publish CameraInfo
@@ -428,7 +428,7 @@ void UVisionComponent::TickComponent(float DeltaTime,
 		CamInfo->roi.width = 0;
 		CamInfo->roi.do_rectify = false;
 
-		_CameraInfoPublisher->Publish(CamInfo);
+		CameraInfoPublisher->Publish(CamInfo);
 	}
 
 	// Clean up
