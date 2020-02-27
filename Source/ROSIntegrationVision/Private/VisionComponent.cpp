@@ -266,29 +266,34 @@ void UVisionComponent::TickComponent(float DeltaTime,
 
 	FROSTime time = FROSTime::Now();
 
-	TSharedPtr<ROSMessages::sensor_msgs::Image> ImageMessage(new ROSMessages::sensor_msgs::Image());
+  if (ImagePublisher) {
+  	TSharedPtr<ROSMessages::sensor_msgs::Image> ImageMessage(new ROSMessages::sensor_msgs::Image());
 
-	ImageMessage->header.seq = 0;
-	ImageMessage->header.time = time;
-	ImageMessage->header.frame_id = ImageOpticalFrame;
-	ImageMessage->height = Height;
-	ImageMessage->width = Width;
-	ImageMessage->encoding = TEXT("bgr8");
-	ImageMessage->step = Width * 3;
-	ImageMessage->data = &Priv->Buffer->Read[OffsetColor];
-	ImagePublisher->Publish(ImageMessage);
+  	ImageMessage->header.seq = 0;
+  	ImageMessage->header.time = time;
+  	ImageMessage->header.frame_id = ImageOpticalFrame;
+  	ImageMessage->height = Height;
+  	ImageMessage->width = Width;
+  	ImageMessage->encoding = TEXT("bgr8");
+  	ImageMessage->step = Width * 3;
+  	ImageMessage->data = &Priv->Buffer->Read[OffsetColor];
+  	ImagePublisher->Publish(ImageMessage);
+  }
 
-	TSharedPtr<ROSMessages::sensor_msgs::Image> DepthMessage(new ROSMessages::sensor_msgs::Image());
+  if (DepthPublisher)
+  {
+  	TSharedPtr<ROSMessages::sensor_msgs::Image> DepthMessage(new ROSMessages::sensor_msgs::Image());
 
-	DepthMessage->header.seq = 0;
-	DepthMessage->header.time = time;
-	DepthMessage->header.frame_id = ImageOpticalFrame;
-	DepthMessage->height = Height;
-	DepthMessage->width = Width;
-	DepthMessage->encoding = TEXT("32FC1");
-	DepthMessage->step = Width * 4;
-	DepthMessage->data = TargetDepthBuf;
-	DepthPublisher->Publish(DepthMessage);
+  	DepthMessage->header.seq = 0;
+  	DepthMessage->header.time = time;
+  	DepthMessage->header.frame_id = ImageOpticalFrame;
+  	DepthMessage->height = Height;
+  	DepthMessage->width = Width;
+  	DepthMessage->encoding = TEXT("32FC1");
+  	DepthMessage->step = Width * 4;
+  	DepthMessage->data = TargetDepthBuf;
+  	DepthPublisher->Publish(DepthMessage);
+  }
 
 	Priv->Buffer->DoneReading();
 
@@ -300,9 +305,9 @@ void UVisionComponent::TickComponent(float DeltaTime,
 	double rz = Priv->Buffer->HeaderRead->Rotation.Z;
 	double rw = Priv->Buffer->HeaderRead->Rotation.W;
 
-	if (!DisableTFPublishing) {
+	if (!DisableTFPublishing && TFPublisher) {
     // Start advertising TF only if it has yet to advertise.
-    if (!TFPublisher->IsAdvertising())
+    if (TFPublisher && !TFPublisher->IsAdvertising())
     {
       TFPublisher->Advertise();
     }
@@ -347,7 +352,7 @@ void UVisionComponent::TickComponent(float DeltaTime,
 		TFPublisher->Publish(TFOpticalFrame);
 	}
   // Stop advertising if TF has been disabled and is already advertising.
-  else if (TFPublisher->IsAdvertising()) {
+  else if (TFPublisher && TFPublisher->IsAdvertising()) {
     TFPublisher->Unadvertise();
   }
 
@@ -372,7 +377,7 @@ void UVisionComponent::TickComponent(float DeltaTime,
 	const double P6 = K5;
 	const double P10 = 1;
 
-	{
+	if (CameraInfoPublisher) {
 		TSharedPtr<ROSMessages::sensor_msgs::CameraInfo> CamInfo(new ROSMessages::sensor_msgs::CameraInfo());
 		CamInfo->header.seq = 0;
 		CamInfo->header.time = time;
