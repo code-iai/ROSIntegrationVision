@@ -35,21 +35,21 @@ public:
 	bool DoneColor, DoneObject;
 };
 
-UVisionComponent::UVisionComponent() : 
-Width(960), 
-Height(540), 
-Framerate(1), 
+UVisionComponent::UVisionComponent() :
+Width(960),
+Height(540),
+Framerate(1),
 UseEngineFramerate(false),
-ServerPort(10000), 
-FrameTime(1.0f / Framerate), 
-TimePassed(0), 
+ServerPort(10000),
+FrameTime(1.0f / Framerate),
+TimePassed(0),
 ColorsUsed(0)
 {
     Priv = new PrivateData();
     FieldOfView = 90.0;
     PrimaryComponentTick.bCanEverTick = true;
     PrimaryComponentTick.bStartWithTickEnabled = true;
-    
+
     auto owner = GetOwner();
     if (owner)
     {
@@ -78,6 +78,11 @@ ColorsUsed(0)
     else {
         UE_LOG(LogTemp, Warning, TEXT("No owner!"));
     }
+
+    CameraInfoPublisher = NewObject<UTopic>(UTopic::StaticClass());
+    DepthPublisher = NewObject<UTopic>(UTopic::StaticClass());
+    ImagePublisher = NewObject<UTopic>(UTopic::StaticClass());
+    TFPublisher = NewObject<UTopic>(UTopic::StaticClass());
 }
 
 UVisionComponent::~UVisionComponent()
@@ -100,7 +105,7 @@ void UVisionComponent::Pause(const bool _Pause)
 bool UVisionComponent::IsPaused() const
 {
     return Paused;
-}  
+}
 
 void UVisionComponent::InitializeComponent()
 {
@@ -148,27 +153,23 @@ void UVisionComponent::BeginPlay()
 	UROSIntegrationGameInstance* rosinst = Cast<UROSIntegrationGameInstance>(GetOwner()->GetGameInstance());
 	if (rosinst)
 	{
-		TFPublisher = NewObject<UTopic>(UTopic::StaticClass());
-		TFPublisher->Init(rosinst->ROSIntegrationCore, 
-                           TEXT("/tf"), 
-                           TEXT("tf2_msgs/TFMessage"));
+		TFPublisher->Init(rosinst->ROSIntegrationCore,
+                      TEXT("/tf"),
+                      TEXT("tf2_msgs/TFMessage"));
 
-		CameraInfoPublisher = NewObject<UTopic>(UTopic::StaticClass());
-		CameraInfoPublisher->Init(rosinst->ROSIntegrationCore, 
-                                   TEXT("/unreal_ros/camera_info"), 
-                                   TEXT("sensor_msgs/CameraInfo"));
+		CameraInfoPublisher->Init(rosinst->ROSIntegrationCore,
+                              TEXT("/unreal_ros/camera_info"),
+                              TEXT("sensor_msgs/CameraInfo"));
 		CameraInfoPublisher->Advertise();
 
-		ImagePublisher = NewObject<UTopic>(UTopic::StaticClass());
-		ImagePublisher->Init(rosinst->ROSIntegrationCore, 
-                              TEXT("/unreal_ros/image_color"), 
-                              TEXT("sensor_msgs/Image"));
+		ImagePublisher->Init(rosinst->ROSIntegrationCore,
+                         TEXT("/unreal_ros/image_color"),
+                         TEXT("sensor_msgs/Image"));
 		ImagePublisher->Advertise();
 
-		DepthPublisher = NewObject<UTopic>(UTopic::StaticClass());
-		DepthPublisher->Init(rosinst->ROSIntegrationCore, 
-                              TEXT("/unreal_ros/image_depth"), 
-                              TEXT("sensor_msgs/Image"));
+		DepthPublisher->Init(rosinst->ROSIntegrationCore,
+                         TEXT("/unreal_ros/image_depth"),
+                         TEXT("sensor_msgs/Image"));
 		DepthPublisher->Advertise();
 	}
 	else {
@@ -323,7 +324,7 @@ void UVisionComponent::TickComponent(float DeltaTime,
 		TFImageFrame->transforms.Add(TransformImage);
 
 		TFPublisher->Publish(TFImageFrame);
-		
+
 		// Publish optical frame
 		FRotator CameraLinkRotator(0.0, -90.0, 90.0);
 		FQuat CameraLinkQuaternion(CameraLinkRotator);
@@ -372,68 +373,66 @@ void UVisionComponent::TickComponent(float DeltaTime,
 	const double P6 = K5;
 	const double P10 = 1;
 
-	{
-		TSharedPtr<ROSMessages::sensor_msgs::CameraInfo> CamInfo(new ROSMessages::sensor_msgs::CameraInfo());
-		CamInfo->header.seq = 0;
-		CamInfo->header.time = time;
-		//CamInfo->header.frame_id =
-		CamInfo->height = Height;
-		CamInfo->width = Width;
-		CamInfo->distortion_model = TEXT("plumb_bob");
-		CamInfo->D[0] = 0;
-		CamInfo->D[1] = 0;
-		CamInfo->D[2] = 0;
-		CamInfo->D[3] = 0;
-		CamInfo->D[4] = 0;
+	TSharedPtr<ROSMessages::sensor_msgs::CameraInfo> CamInfo(new ROSMessages::sensor_msgs::CameraInfo());
+	CamInfo->header.seq = 0;
+	CamInfo->header.time = time;
+	//CamInfo->header.frame_id =
+	CamInfo->height = Height;
+	CamInfo->width = Width;
+	CamInfo->distortion_model = TEXT("plumb_bob");
+	CamInfo->D[0] = 0;
+	CamInfo->D[1] = 0;
+	CamInfo->D[2] = 0;
+	CamInfo->D[3] = 0;
+	CamInfo->D[4] = 0;
 
-		CamInfo->K[0] = K0;
-		CamInfo->K[1] = 0;
-		CamInfo->K[2] = K2;
-		CamInfo->K[3] = 0;
-		CamInfo->K[4] = K4;
-		CamInfo->K[5] = K5;
-		CamInfo->K[6] = 0;
-		CamInfo->K[7] = 0;
-		CamInfo->K[8] = K8;
+	CamInfo->K[0] = K0;
+	CamInfo->K[1] = 0;
+	CamInfo->K[2] = K2;
+	CamInfo->K[3] = 0;
+	CamInfo->K[4] = K4;
+	CamInfo->K[5] = K5;
+	CamInfo->K[6] = 0;
+	CamInfo->K[7] = 0;
+	CamInfo->K[8] = K8;
 
-		CamInfo->R[0] = 1;
-		CamInfo->R[1] = 0;
-		CamInfo->R[2] = 0;
-		CamInfo->R[3] = 0;
-		CamInfo->R[4] = 1;
-		CamInfo->R[5] = 0;
-		CamInfo->R[6] = 0;
-		CamInfo->R[7] = 0;
-		CamInfo->R[8] = 1;
+	CamInfo->R[0] = 1;
+	CamInfo->R[1] = 0;
+	CamInfo->R[2] = 0;
+	CamInfo->R[3] = 0;
+	CamInfo->R[4] = 1;
+	CamInfo->R[5] = 0;
+	CamInfo->R[6] = 0;
+	CamInfo->R[7] = 0;
+	CamInfo->R[8] = 1;
 
-		CamInfo->P[0] = P0;
-		CamInfo->P[1] = 0;
-		CamInfo->P[2] = P2;
-		CamInfo->P[3] = 0;
-		CamInfo->P[4] = 0;
-		CamInfo->P[5] = P5;
-		CamInfo->P[6] = P6;
-		CamInfo->P[7] = 0;
-		CamInfo->P[8] = 0;
-		CamInfo->P[9] = 0;
-		CamInfo->P[10] = P10;
-		CamInfo->P[11] = 0;
+	CamInfo->P[0] = P0;
+	CamInfo->P[1] = 0;
+	CamInfo->P[2] = P2;
+	CamInfo->P[3] = 0;
+	CamInfo->P[4] = 0;
+	CamInfo->P[5] = P5;
+	CamInfo->P[6] = P6;
+	CamInfo->P[7] = 0;
+	CamInfo->P[8] = 0;
+	CamInfo->P[9] = 0;
+	CamInfo->P[10] = P10;
+	CamInfo->P[11] = 0;
 
-		CamInfo->binning_x = 0;
-		CamInfo->binning_y = 0;
+	CamInfo->binning_x = 0;
+	CamInfo->binning_y = 0;
 
-		CamInfo->roi.x_offset = 0;
-		CamInfo->roi.y_offset = 0;
-		CamInfo->roi.height = 0;
-		CamInfo->roi.width = 0;
-		CamInfo->roi.do_rectify = false;
+	CamInfo->roi.x_offset = 0;
+	CamInfo->roi.y_offset = 0;
+	CamInfo->roi.height = 0;
+	CamInfo->roi.width = 0;
+	CamInfo->roi.do_rectify = false;
 
-		CameraInfoPublisher->Publish(CamInfo);
-	}
+	CameraInfoPublisher->Publish(CamInfo);
 
 	// Clean up
 	delete[] TargetDepthBuf;
-}            
+}
 
 void UVisionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
@@ -451,7 +450,7 @@ void UVisionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
     Priv->ThreadColor.join();
     Priv->ThreadDepth.join();
     Priv->ThreadObject.join();
-}         
+}
 
 void UVisionComponent::ShowFlagsBasicSetting(FEngineShowFlags &ShowFlags) const
 {
@@ -751,4 +750,4 @@ void UVisionComponent::convertDepth(const uint16_t *in, __m128 *out) const
 		*out = _mm_cvtph_ps(_mm_set_epi16(
         0, 0, 0, 0, *(in + 3), *(in + 2), *(in + 1), *(in + 0))) / 100;
 	}
-}       
+}
