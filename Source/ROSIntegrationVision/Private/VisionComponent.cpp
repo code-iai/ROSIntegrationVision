@@ -198,22 +198,27 @@ void UVisionComponent::TickComponent(float DeltaTime,
 	TimePassed -= FrameTime;
 	MEASURE_TIME("Tick");
 
-    auto owner = GetOwner();
+  auto owner = GetOwner();
 	owner->UpdateComponentTransforms();
 
 	FDateTime Now = FDateTime::UtcNow();
 	Priv->Buffer->HeaderWrite->TimestampCapture = Now.ToUnixTimestamp() * 1000000000 + Now.GetMillisecond() * 1000000;
 
-	FVector Translation = GetComponentLocation();
-	FQuat Rotation = GetComponentQuat();
-	// Convert to meters and ROS coordinate system
+  // FVector OwnerTranslation = owner->GetActorLocation();
+	FVector Translation = GetRelativeLocation();
+
+  // Compute the rotation difference between the component and the owner.
+  FRotator OwnerRotation = owner->GetActorRotation();
+  FQuat Quat = FQuat(GetRelativeRotation());
+
+	// Convert to meters and ROS coordinate system in relation to the owner's transform.
 	Priv->Buffer->HeaderWrite->Translation.X = Translation.X / 100.0f;
 	Priv->Buffer->HeaderWrite->Translation.Y = -Translation.Y / 100.0f;
 	Priv->Buffer->HeaderWrite->Translation.Z = Translation.Z / 100.0f;
-	Priv->Buffer->HeaderWrite->Rotation.X = -Rotation.X;
-	Priv->Buffer->HeaderWrite->Rotation.Y = Rotation.Y;
-	Priv->Buffer->HeaderWrite->Rotation.Z = -Rotation.Z;
-	Priv->Buffer->HeaderWrite->Rotation.W = Rotation.W;
+	Priv->Buffer->HeaderWrite->Rotation.X = Quat.X;
+	Priv->Buffer->HeaderWrite->Rotation.Y = Quat.Y;
+	Priv->Buffer->HeaderWrite->Rotation.Z = Quat.Z;
+	Priv->Buffer->HeaderWrite->Rotation.W = Quat.W;
 
 	// Start writing to buffer
 	Priv->Buffer->StartWriting(ObjectToColor, ObjectColors);
@@ -293,14 +298,6 @@ void UVisionComponent::TickComponent(float DeltaTime,
 
 	Priv->Buffer->DoneReading();
 
-	double x = Priv->Buffer->HeaderRead->Translation.X;
-	double y = Priv->Buffer->HeaderRead->Translation.Y;
-	double z = Priv->Buffer->HeaderRead->Translation.Z;
-	double rx = Priv->Buffer->HeaderRead->Rotation.X;
-	double ry = Priv->Buffer->HeaderRead->Rotation.Y;
-	double rz = Priv->Buffer->HeaderRead->Rotation.Z;
-	double rw = Priv->Buffer->HeaderRead->Rotation.W;
-
 	if (!DisableTFPublishing) {
     // Start advertising TF only if it has yet to advertise.
     if (!TFPublisher->IsAdvertising())
@@ -313,21 +310,21 @@ void UVisionComponent::TickComponent(float DeltaTime,
 		TransformImage.header.time = time;
 		TransformImage.header.frame_id = ParentLink;
 		TransformImage.child_frame_id = ImageFrame;
-		TransformImage.transform.translation.x = x;
-		TransformImage.transform.translation.y = y;
-		TransformImage.transform.translation.z = z;
-		TransformImage.transform.rotation.x = rx;
-		TransformImage.transform.rotation.y = ry;
-		TransformImage.transform.rotation.z = rz;
-		TransformImage.transform.rotation.w = rw;
+		TransformImage.transform.translation.x = Priv->Buffer->HeaderRead->Translation.X;
+		TransformImage.transform.translation.y = Priv->Buffer->HeaderRead->Translation.Y;
+		TransformImage.transform.translation.z = Priv->Buffer->HeaderRead->Translation.Z;
+		TransformImage.transform.rotation.x = Priv->Buffer->HeaderRead->Rotation.X;
+		TransformImage.transform.rotation.y = Priv->Buffer->HeaderRead->Rotation.Y;
+		TransformImage.transform.rotation.z = Priv->Buffer->HeaderRead->Rotation.Z;
+		TransformImage.transform.rotation.w = Priv->Buffer->HeaderRead->Rotation.W;
 
 		TFImageFrame->transforms.Add(TransformImage);
 
 		TFPublisher->Publish(TFImageFrame);
 
-		// Publish optical frame
-		FRotator CameraLinkRotator(0.0, -90.0, 90.0);
-		FQuat CameraLinkQuaternion(CameraLinkRotator);
+		// Publish optical frame with a fixed joint connecting to the Image frame.
+		FRotator OpticalRotator(0.0, -90.0, 90.0);
+		FQuat OpticalQuat(OpticalRotator);
 
 		TSharedPtr<ROSMessages::tf2_msgs::TFMessage> TFOpticalFrame(new ROSMessages::tf2_msgs::TFMessage());
 		ROSMessages::geometry_msgs::TransformStamped TransformOptical;
@@ -335,13 +332,10 @@ void UVisionComponent::TickComponent(float DeltaTime,
 		TransformOptical.header.time = time;
 		TransformOptical.header.frame_id = ImageFrame;
 		TransformOptical.child_frame_id = ImageOpticalFrame;
-		TransformOptical.transform.translation.x = 0;
-		TransformOptical.transform.translation.y = 0;
-		TransformOptical.transform.translation.z = 0;
-		TransformOptical.transform.rotation.x = CameraLinkQuaternion.X;
-		TransformOptical.transform.rotation.y = CameraLinkQuaternion.Y;
-		TransformOptical.transform.rotation.z = CameraLinkQuaternion.Z;
-		TransformOptical.transform.rotation.w = CameraLinkQuaternion.W;
+		TransformOptical.transform.rotation.x = OpticalQuat.X;
+		TransformOptical.transform.rotation.y = OpticalQuat.Y;
+		TransformOptical.transform.rotation.z = OpticalQuat.Z;
+		TransformOptical.transform.rotation.w = OpticalQuat.W;
 
 		TFOpticalFrame->transforms.Add(TransformOptical);
 
