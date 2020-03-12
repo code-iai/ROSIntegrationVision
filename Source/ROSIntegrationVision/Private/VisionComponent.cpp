@@ -198,26 +198,22 @@ void UVisionComponent::TickComponent(float DeltaTime,
 	TimePassed -= FrameTime;
 	MEASURE_TIME("Tick");
 
-  auto owner = GetOwner();
+	auto owner = GetOwner();
 	owner->UpdateComponentTransforms();
 
 	FDateTime Now = FDateTime::UtcNow();
 	Priv->Buffer->HeaderWrite->TimestampCapture = Now.ToUnixTimestamp() * 1000000000 + Now.GetMillisecond() * 1000000;
 
-  // FVector OwnerTranslation = owner->GetActorLocation();
 	FVector Translation = GetRelativeLocation();
-
-  // Compute the rotation difference between the component and the owner.
-  FRotator OwnerRotation = owner->GetActorRotation();
-  FQuat Quat = FQuat(GetRelativeRotation());
+	FQuat Quat = FQuat(GetRelativeRotation());
 
 	// Convert to meters and ROS coordinate system in relation to the owner's transform.
 	Priv->Buffer->HeaderWrite->Translation.X = Translation.X / 100.0f;
 	Priv->Buffer->HeaderWrite->Translation.Y = -Translation.Y / 100.0f;
 	Priv->Buffer->HeaderWrite->Translation.Z = Translation.Z / 100.0f;
-	Priv->Buffer->HeaderWrite->Rotation.X = Quat.X;
+	Priv->Buffer->HeaderWrite->Rotation.X = -Quat.X;
 	Priv->Buffer->HeaderWrite->Rotation.Y = Quat.Y;
-	Priv->Buffer->HeaderWrite->Rotation.Z = Quat.Z;
+	Priv->Buffer->HeaderWrite->Rotation.Z = -Quat.Z;
 	Priv->Buffer->HeaderWrite->Rotation.W = Quat.W;
 
 	// Start writing to buffer
