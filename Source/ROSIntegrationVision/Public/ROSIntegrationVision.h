@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ModuleManager.h"
+#include "Modules/ModuleManager.h"
 
 class FROSIntegrationVisionModule : public IModuleInterface
 {
@@ -24,7 +24,7 @@ public:
 		return FModuleManager::LoadModuleChecked< FROSIntegrationVisionModule >("ROSIntegrationVision");
 	}
 
-	/** 
+	/**
 	* Checks to see if this module is loaded and ready.  It is only valid to call Get() if IsAvailable() returns true.
 	*
 	* @return True if the module is loaded and ready to use
