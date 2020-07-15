@@ -38,11 +38,11 @@ public:
     int32 ServerPort;
     
   // The cameras for color, depth and objects;
-  UPROPERTY(EditAnywhere, Category = "Vision Component")
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vision Component")
 	  USceneCaptureComponent2D * Color;
-  UPROPERTY(EditAnywhere, Category = "Vision Component")
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vision Component")
   	USceneCaptureComponent2D * Depth;
-  UPROPERTY(EditAnywhere, Category = "Vision Component")
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vision Component")
     USceneCaptureComponent2D * Object;
   
   UPROPERTY(BlueprintReadWrite, Category = "Vision Component")

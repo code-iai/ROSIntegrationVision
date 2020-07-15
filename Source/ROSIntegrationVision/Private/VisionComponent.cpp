@@ -13,6 +13,10 @@
 #include "sensor_msgs/Image.h"
 #include "tf2_msgs/TFMessage.h"
 
+#include "PacketBuffer.h"
+#include "ROSIntegrationGameInstance.h"
+#include "StopTime.h"
+
 #include "EngineUtils.h"
 #include "IImageWrapper.h"
 #include "IImageWrapperModule.h"
