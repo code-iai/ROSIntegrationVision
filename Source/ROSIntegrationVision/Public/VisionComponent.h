@@ -39,7 +39,7 @@ public:
     
   // The cameras for color, depth and objects;
   UPROPERTY(Transient, EditAnywhere, BlueprintReadWrite, Category = "Vision Component")
-	  USceneCaptureComponent2D * Color;
+    USceneCaptureComponent2D * Color;
   UPROPERTY(Transient, EditAnywhere, BlueprintReadWrite, Category = "Vision Component")
   	USceneCaptureComponent2D * Depth;
   UPROPERTY(Transient, EditAnywhere, BlueprintReadWrite, Category = "Vision Component")
