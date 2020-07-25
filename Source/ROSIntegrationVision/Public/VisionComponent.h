@@ -38,11 +38,11 @@ public:
     int32 ServerPort;
     
   // The cameras for color, depth and objects;
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vision Component")
+  UPROPERTY(Transient, EditAnywhere, BlueprintReadWrite, Category = "Vision Component")
 	  USceneCaptureComponent2D * Color;
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vision Component")
+  UPROPERTY(Transient, EditAnywhere, BlueprintReadWrite, Category = "Vision Component")
   	USceneCaptureComponent2D * Depth;
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vision Component")
+  UPROPERTY(Transient, EditAnywhere, BlueprintReadWrite, Category = "Vision Component")
     USceneCaptureComponent2D * Object;
   
   UPROPERTY(BlueprintReadWrite, Category = "Vision Component")
@@ -50,13 +50,13 @@ public:
   UPROPERTY(BlueprintReadWrite, Category = "Vision Component")
     FString ImageOpticalFrame = TEXT("/unreal_ros/image_optical_frame");
     
-  UPROPERTY(EditAnywhere, Category = "Vision Component")
+  UPROPERTY(Transient, EditAnywhere, Category = "Vision Component")
     UTopic * CameraInfoPublisher;
-  UPROPERTY(EditAnywhere, Category = "Vision Component")
+  UPROPERTY(Transient, EditAnywhere, Category = "Vision Component")
     UTopic * DepthPublisher;
-  UPROPERTY(EditAnywhere, Category = "Vision Component")
+  UPROPERTY(Transient, EditAnywhere, Category = "Vision Component")
    UTopic * ImagePublisher;
-  UPROPERTY(EditAnywhere, Category = "Vision Component")
+  UPROPERTY(Transient, EditAnywhere, Category = "Vision Component")
    UTopic * TFPublisher;
 
 protected:
