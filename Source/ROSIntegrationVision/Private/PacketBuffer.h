@@ -82,7 +82,7 @@ public:
   // Pointer to the packet headers
   PacketHeader *HeaderWrite, *HeaderRead;
 
-  // Initializes the buffer, widht and height are not changeable afterwards
+  // Initializes the buffer, width and height are not changeable afterwards
   PacketBuffer(const uint32 Width, const uint32 Height, const float FieldOfView);
 
   // Starts writing and copies the map entries to the end of the packet.
